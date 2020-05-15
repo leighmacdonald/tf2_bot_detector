@@ -2,6 +2,8 @@
 
 #include "Clock.h"
 
+#include <experimental/coroutine>
+#include <experimental/generator>
 #include <string>
 
 struct ImVec4;
@@ -34,18 +36,5 @@ namespace tf2_bot_detector
 	void Log(std::string msg, const LogMessageColor& color);
 	void SetLogTimestamp(time_point_t timestamp);
 
-	void ForEachLogMsg(void(*msgFunc)(const LogMessage& msg, void* userData), void* userData = nullptr);
-	inline void ForEachLogMsg(void(*msgFunc)(const LogMessage& msg, const void* userData), const void* userData = nullptr)
-	{
-		return ForEachLogMsg(reinterpret_cast<void(*)(const LogMessage&, void*)>(msgFunc), const_cast<void*>(userData));
-	}
-
-	template<typename TFunc>
-	inline void ForEachLogMsg(const TFunc& func)
-	{
-		return ForEachLogMsg([](const LogMessage& msg, const void* userData)
-			{
-				(*reinterpret_cast<const TFunc*>(userData))(msg);
-			}, &func);
-	}
+	std::experimental::generator<LogMessage> GetLogMessages();
 }

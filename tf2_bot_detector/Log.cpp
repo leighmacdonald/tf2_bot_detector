@@ -27,12 +27,12 @@ void tf2_bot_detector::SetLogTimestamp(time_point_t timestamp)
 	s_LogTimestamp = timestamp;
 }
 
-void tf2_bot_detector::ForEachLogMsg(void(*msgFunc)(const LogMessage& msg, void* userData), void* userData)
+std::experimental::generator<LogMessage> tf2_bot_detector::GetLogMessages()
 {
 	std::lock_guard lock(s_LogMutex);
 
 	for (const auto& msg : s_LogMessages)
-		msgFunc(msg, userData);
+		co_yield msg;
 }
 
 LogMessageColor::LogMessageColor(const ImVec4& vec) :
